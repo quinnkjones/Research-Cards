@@ -1,0 +1,49 @@
+
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    # set shared memory limit when using docker compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: cards_db
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+      
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/conf.d/
+  #     - ./:/app
+  #   depends_on:
+  #     - web
+
+  
+  web:
+    build: .
+    environment:
+      - PROD=1
+    command: gunicorn  --chdir /app/research_cards_django my_app:application --bind 0.0.0.0:8000
+    restart: always
+    depends_on:
+      - db
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+
+
+    

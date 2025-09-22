@@ -452,6 +452,8 @@ def result_create(request, experiment_id):
         comment=request.POST.get('comment', '')
     )
     result.save()
+    
+
     return Response({"message": "Result Created", "result_id": result.id})
 
 #view the details of a specific result
@@ -493,6 +495,7 @@ def result_edit(request, result_id):
     result.training_time = request.POST.get('training_time', result.training_time)
     result.comment = request.POST.get('comment', result.comment)
     result.save()
+    
 
     return Response({"message": f"Result Edited", "result_id": result.id})
 

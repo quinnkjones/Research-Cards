@@ -119,7 +119,7 @@ class Experiment(models.Model):
     epochs = models.IntegerField(null=True, blank=True)
 
     hypothesis = models.ForeignKey(Hypotheses, on_delete=models.CASCADE, related_name='experiments')
-    result = models.ForeignKey(Result, on_delete=models.CASCADE, related_name='experiments', null=True, blank=True)
+    
 
     def __str__(self):
         return self.title
@@ -135,5 +135,5 @@ class Experiment(models.Model):
             "batch_size": self.batch_size,
             "epochs": self.epochs,
             "hypothesis_id": self.hypothesis.id,
-            "result_id": self.result.id if self.result else None,
+            
         }

@@ -50,18 +50,18 @@ def create_account(request):
     
 
 @api_view(['DELETE'])
-def delete_account(request):
+def delete_account(request, username):
     if check_admin_api_key(request) is False:
         return Response("Unauthorized", status=401)
 
     #if the requesting user is admin, delete the specified user by the username in the DELETE data
 
-    username = request.DELETE.get('username')
+    username
     user = User.objects.filter(username=username).first()
     if not user:
         return Response("User not found", status=404)
     user.delete()
-    return Response(f"User {username} deleted") 
+    return Response({'message': f'User {username} deleted'}) 
 
 
 #For our convenience, an endpoint to list all accounts (admin only)
@@ -121,7 +121,7 @@ def project_create(request):
         owner=user
     )
     project.save()
-    return Response("Project Create")
+    return Response({"message": "Project Created", "project_id": project.id})
 
 
 #Projects can have multiple associated users who can view and add to the project but not delete it or manage users
@@ -144,7 +144,7 @@ def project_add_user(request, project_id):
     project.associated_users.add(new_user)
     project.save()
 
-    return Response(f"User {associate} added to project {project.name}")
+    return Response({'message': f"User {associate} added to project {project.name}"})
 
 
 #likewise the owner of the project can remove associated users
@@ -167,7 +167,7 @@ def project_remove_user(request, project_id):
     project.associated_users.remove(user)
     project.save()
 
-    return Response(f"User {associate} removed from project {project.name}")
+    return Response({"message": f"User {associate} removed from project {project.name}"})
 
 #edit the name and description of a project (only by the owner)
 @api_view(['PUT'])
@@ -185,7 +185,7 @@ def project_edit(request, project_id):
     project.description = request.PUT.get('description', project.description)
     project.save()
 
-    return Response("Project Edit")
+    return Response({"message": "Project Edited", "project_id": project.id})
 
 #delete a project (only by the owner)
 @api_view(['DELETE'])
@@ -200,7 +200,7 @@ def project_delete(request, project_id):
         return Response("Project not found", status=404)
 
     project.delete()
-    return Response("Project Delete")
+    return Response({"message": "Project Deleted"})
 
 ## In-depth Project Views
 
@@ -287,7 +287,7 @@ def hypothesis_create(request, project_id):
         project=project
     )
     hypothesis.save()
-    return Response("Hypothesis Create")
+    return Response({"message": "Hypothesis Created", "hypothesis_id": hypothesis.id})
 
 #list the details of a specific hypothesis
 @api_view(['GET'])
@@ -323,7 +323,7 @@ def hypothesis_edit(request, hypothesis_id):
     hypothesis.description = request.PUT.get('description', hypothesis.description)
     hypothesis.save()
 
-    return Response(f"Hypothesis Edit: {hypothesis_id}")
+    return Response({"message": f"Hypothesis Edited", "hypothesis_id": hypothesis.id})
 
 #delete a hypothesis (only by owner or associated users of the linked project)
 @api_view(['DELETE'])
@@ -337,7 +337,7 @@ def hypothesis_delete(request, hypothesis_id):
     if project.owner != user and user not in project.associated_users.all():
         return Response("Forbidden", status=403)
     hypothesis.delete()
-    return Response(f"Hypothesis Delete: {hypothesis_id}")
+    return Response({"message": f"Hypothesis Deleted"})
 
 
 ## Experiment CRUD operations
@@ -366,7 +366,7 @@ def experiment_create(request, hypothesis_id):
         hypothesis=hypothesis
     )
     experiment.save()
-    return Response("Experiment Create")
+    return Response({"message": "Experiment Created", "experiment_id": experiment.id})
 
 #view the details of a specific experiment
 @api_view(['GET'])
@@ -403,7 +403,7 @@ def experiment_edit(request, experiment_id):
     experiment.epochs = request.PUT.get('epochs', experiment.epochs)
     experiment.save()
 
-    return Response(f"Experiment Edit: {experiment_id}")
+    return Response({"message": f"Experiment Edited", "experiment_id": experiment.id})
 
 #delete the experiment given by its id
 @api_view(['DELETE'])
@@ -419,7 +419,7 @@ def experiment_delete(request, experiment_id):
         return Response("Forbidden", status=403)
 
     experiment.delete()
-    return Response(f"Experiment Delete: {experiment_id}")
+    return Response({"message": f"Experiment Deleted"})
 
 
 ## Result CRUD operations
@@ -452,7 +452,7 @@ def result_create(request, experiment_id):
         comment=request.POST.get('comment', '')
     )
     result.save()
-    return Response("Result Create")
+    return Response({"message": "Result Created", "result_id": result.id})
 
 #view the details of a specific result
 @api_view(['GET'])
@@ -494,7 +494,7 @@ def result_edit(request, result_id):
     result.comment = request.PUT.get('comment', result.comment)
     result.save()
 
-    return Response(f"Result Edit: {result_id}")
+    return Response({"message": f"Result Edited", "result_id": result.id})
 
 
 #delete the result given by its id
@@ -512,7 +512,7 @@ def result_delete(request, result_id):
         return Response("Forbidden", status=403)
 
     result.delete()
-    return Response(f"Result Delete: {result_id}")
+    return Response({"message": f"Result Deleted"})
 
 
 ## Specialized Queries

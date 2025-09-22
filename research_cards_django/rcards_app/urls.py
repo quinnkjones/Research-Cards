@@ -51,7 +51,8 @@ urlpatterns = [
 
     #account management
     path("accounts/create/", views.create_account, name="create_account"),
-    path("accounts/delete/", views.delete_account, name="delete_account"),
+    path("accounts/<str:username>/delete/", views.delete_account, name="delete_account"),
+    path("accounts/", views.get_accounts, name="get_accounts"),
 
     # specialized queries that have more complicated logic or require joining data across multiple tables and return specific filtered data sets
     path("projects/<int:project_id>/results/accuracy_<str:threshold>/", views.project_results_by_accuracy, name="project_results_by_accuracy"),

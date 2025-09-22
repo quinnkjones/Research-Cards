@@ -25,9 +25,9 @@ SECRET_KEY = 'django-insecure-fb*dri9_+91e^g$=@lzg8!!!q2fc=836d7_2akc$x8vdxi6w4n
 ADMIN_API_KEY='your_admin_api_key_here'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost']
 
 
 # Application definition

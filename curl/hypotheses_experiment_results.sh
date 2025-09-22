@@ -59,14 +59,18 @@ echo -e "\n"
 # Hypotheses: list, search, filter
 
 echo "Search and filter tests:" 
-echo "search for 'updated' in title/description"
+echo "search for 'updated' in title"
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/hypotheses/search/?q=updated" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
-echo "search for 'svm' in title/description"
+echo "search for 'svm' in title"
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/hypotheses/search/?q=svm" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
 echo "filter by keyword 'biology'"
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/hypotheses/filter_by_keyword/?keyword=biology" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
+echo  "filter by keyword 'svm'"
+curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/hypotheses/filter_by_keyword/?keyword=svm" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
+
 
 #delete HID2 to test delete
+echo "Deleting hypothesis ID $HID2"
 curl -s -X DELETE "$BASE_URL/hypotheses/$HID2/delete/" -H "x-api-key:$JIMAPI_KEY"
 #list hypotheses to verify HID2 was deleted
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/hypotheses/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
@@ -74,6 +78,9 @@ echo -e "\n"
 
 
 # Experiments: create, detail, edit, delete
+
+echo "Creating experiments for hypothesis IDs $HID1 and $HID3"
+
 curl -s -X POST "$BASE_URL/hypotheses/$HID3/experiments/create/" -H "x-api-key:$JIMAPI_KEY" -H "Content-Type: application/x-www-form-urlencoded" -d 'title=Test Experiment&description=Experiment desc.&experiment_type=nn&learning_rate=0.01&batch_size=32&epochs=10' | jq -S .
 curl -s -X POST "$BASE_URL/hypotheses/$HID3/experiments/create/" -H "x-api-key:$JIMAPI_KEY" -H "Content-Type: application/x-www-form-urlencoded" -d 'title=Test Experiment&description=Experiment desc.&experiment_type=svm&learning_rate=0.01&batch_size=32&epochs=10' | jq -S .
 curl -s -X POST "$BASE_URL/hypotheses/$HID3/experiments/create/" -H "x-api-key:$JIMAPI_KEY" -H "Content-Type: application/x-www-form-urlencoded" -d 'title=Test Experiment&description=Experiment desc.&experiment_type=rf&learning_rate=0.01&batch_size=32&epochs=10' | jq -S .
@@ -83,6 +90,8 @@ curl -s -X POST "$BASE_URL/hypotheses/$HID1/experiments/create/" -H "x-api-key:$
 curl -s -X POST "$BASE_URL/hypotheses/$HID1/experiments/create/" -H "x-api-key:$JIMAPI_KEY" -H "Content-Type: application/x-www-form-urlencoded" -d 'title=Test Experiment&description=Experiment desc.&experiment_type=rf&learning_rate=0.01&batch_size=32&epochs=10' | jq -S .
 
 #list experiments to verify they were created correctly
+
+echo "Listing all experiments for project ID $PROJECT_ID"
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/experiments/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
 EXPERIMENT_ID1=$(curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/experiments/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -r '.[0].id')
 EXPERIMENT_ID2=$(curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/experiments/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -r '.[1].id')
@@ -103,7 +112,7 @@ curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/experiments/" -H "x-api-key:$JIMA
 
 
 # Hypotheses: create, detail, edit, delete
-
+echo "Creating results for experiment IDs $EXPERIMENT_ID1 and $EXPERIMENT_ID3"
 
 R1Response1=$(curl -s -X POST "$BASE_URL/experiments/$EXPERIMENT_ID1/results/create/" -H "x-api-key:$JIMAPI_KEY" -H "Content-Type: application/x-www-form-urlencoded" -d 'accuracy=0.87&loss=0.15&ROC=0.88&PR_AUC=0.86&weights_path=s3://path/to/weights.pth&training_time=3600&comment=Good results!')
 R1Response2=$(curl -s -X POST "$BASE_URL/experiments/$EXPERIMENT_ID3/results/create/" -H "x-api-key:$JIMAPI_KEY" -H "Content-Type: application/x-www-form-urlencoded" -d 'accuracy=0.0&loss=1&ROC=0.0&PR_AUC=0.0&weights_path=s3://path/to/weights.pth&training_time=36000&comment=very bad results!')
@@ -121,14 +130,73 @@ curl -s -X GET "$BASE_URL/results/$RESULT_ID2/" -H "x-api-key:$JIMAPI_KEY" -H "A
 curl -s -X DELETE "$BASE_URL/results/$RESULT_ID2/delete/" -H "x-api-key:$JIMAPI_KEY" | jq -S .
 
 
+echo "Check the find all experiments with no results function"
+curl -s -X GET "$BASE_URL/experiments/no_results/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
+
+echo "Creating 2 more experiments for hypothesis ID $HID1"
+EID1=$(curl -s -X POST "$BASE_URL/hypotheses/$HID1/experiments/create/"\
+ -H "x-api-key:$JIMAPI_KEY"\
+  -H "Content-Type: application/x-www-form-urlencoded"\
+   -d 'title=Test Experiment&description=Experiment desc.&experiment_type=nn&learning_rate=0.01&batch_size=32&epochs=10'\
+    | jq -r '.experiment_id')
+
+EID2=$(curl -s -X POST "$BASE_URL/hypotheses/$HID1/experiments/create/"\
+ -H "x-api-key:$JIMAPI_KEY"\
+  -H "Content-Type: application/x-www-form-urlencoded"\
+   -d 'title=Test Experiment&description=Experiment desc.&experiment_type=nn&learning_rate=0.01&batch_size=32&epochs=10'\
+    | jq -r '.experiment_id')
+
+
+echo "run results for EID1 2 times and EID2 three times with a variety of accuraicies and times"
+curl -s -X POST "$BASE_URL/experiments/$EID1/results/create/"\
+ -H "x-api-key:$JIMAPI_KEY"\
+  -H "Content-Type: application/x-www-form-urlencoded"\
+   -d 'accuracy=0.87&loss=0.15&ROC=0.88&PR_AUC=0.86&weights_path=s3://path/to/weights.pth&training_time=3600&comment=Good results!'\
+    
+
+curl -s -X POST "$BASE_URL/experiments/$EID1/results/create/"\
+ -H "x-api-key:$JIMAPI_KEY"\
+  -H "Content-Type: application/x-www-form-urlencoded"\
+   -d 'accuracy=0.90&loss=0.10&ROC=0.90&PR_AUC=0.90&weights_path=s3://path/to/weights.pth&training_time=3500&comment=Better results!'\
+    
+
+curl -s -X POST "$BASE_URL/experiments/$EID2/results/create/"\
+ -H "x-api-key:$JIMAPI_KEY"\
+  -H "Content-Type: application/x-www-form-urlencoded"\
+   -d 'accuracy=0.70&loss=0.30&ROC=0.70&PR_AUC=0.70&weights_path=s3://path/to/weights.pth&training_time=4000&comment=OK results!'\
+    
+
+curl -s -X POST "$BASE_URL/experiments/$EID2/results/create/"\
+ -H "x-api-key:$JIMAPI_KEY"\
+  -H "Content-Type: application/x-www-form-urlencoded"\
+   -d 'accuracy=0.75&loss=0.25&ROC=0.75&PR_AUC=0.75&weights_path=s3://path/to/weights.pth&training_time=3900&comment=Better results!'\
+    
+
+curl -s -X POST "$BASE_URL/experiments/$EID2/results/create/"\
+ -H "x-api-key:$JIMAPI_KEY"\
+  -H "Content-Type: application/x-www-form-urlencoded"\
+   -d 'accuracy=0.80&loss=0.20&ROC=0.80&PR_AUC=0.80&weights_path=s3://path/to/weights.pth&training_time=3800&comment=Best results!'\
+    
+
+echo "Find the results with training time under 4000 seconds"
+curl -s -X GET "$BASE_URL/results/training_time_under/4000" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
+
+echo "Find the top 2 results for hypothesis ID $HID1 with highest accuracy"
+curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/hypotheses/$HID1/best_result/?top_n=2" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
+
+
+echo "list results for project ID $PROJECT_ID"
 # Results: list
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/results/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
 
+
+echo "Deleting experiment ID $EXPERIMENT_ID3 to test delete"
 curl -s -X DELETE "$BASE_URL/experiments/$EXPERIMENT_ID3/delete/" -H "x-api-key:$JIMAPI_KEY" | jq -S .
 
 #list experiments to verify EXPERIMENT_ID3 was deleted
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/experiments/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
 
+echo "Deleting project ID $PROJECT_ID to test delete project"
 #delete project to clean up and test delete project
 curl -s -X DELETE "$BASE_URL/projects/$PROJECT_ID/delete/" -H "x-api-key:$JIMAPI_KEY" | jq -S .
 #list projects to verify the project was deleted

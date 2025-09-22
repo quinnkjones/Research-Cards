@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'research_cards.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'cards_db',
+        'USER': 'user',
+        'PASSWORD': 'example',
+        'HOST': 'db',  # Set to 'db' to match the Docker Compose service name
+        'PORT': '5432',
     }
 }
 

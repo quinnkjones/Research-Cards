@@ -26,7 +26,7 @@ services:
     ports:
       - 8080:8080
   
-
+  #stretch goal in case I get to the point of serving static files
   # nginx:
   #   image: nginx:latest
   #   ports:

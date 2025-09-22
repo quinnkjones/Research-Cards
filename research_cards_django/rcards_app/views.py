@@ -452,7 +452,7 @@ def result_create(request, experiment_id):
         comment=request.POST.get('comment', '')
     )
     result.save()
-    
+
 
     return Response({"message": "Result Created", "result_id": result.id})
 
@@ -555,7 +555,7 @@ def hypothesis_best_result(request, project_id, hypothesis_id):
     if not user:
         return Response("Unauthorized", status=401)
 
-    N = request.GET.get('top_n', 5)
+    N = int(request.GET.get('top_n', 5))
 
     project = Project.objects.filter(id=project_id).first()
     if not project or (project.owner != user and user not in project.associated_users.all()):

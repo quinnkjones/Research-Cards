@@ -130,4 +130,5 @@ echo -e "\n"
 
 #list all the results for the project (project ID 1)
 curl -X GET "$BASE_URL/projects/1/results/" \
-    -H "x-api-key: $JIMAPI_KEYecho -e "\n"
+    -H "x-api-key: $JIMAPI_KEY"
+echo -e "\n"

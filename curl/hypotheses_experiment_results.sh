@@ -6,7 +6,7 @@ ADMIN_API_KEY="your_admin_api_key_here"
 # preamble to get the api keys for the two users so we can use them in the tests
 #test should be started from the init db state 
 
-# GET user api keys for the two users so we can use them in the tests
+echo "GET user api keys for the two users so we can use them in the tests"
 KEYS=$(curl -X GET "http://localhost:8000/accounts/" -H "x-api-key:$ADMIN_API_KEY" -H "Accept: application/json")
 echo $KEYS
 JIMAPI_KEY=$(echo $KEYS | jq -r '.[] | select(.username=="jimothy") | .api_key')
@@ -16,7 +16,8 @@ echo "jimothy API key: $JIMAPI_KEY"
 echo "johnathy API key: $JONAPI_KEY"
 echo -e "\n"
 
-#create a new project for jimothy to hold the hypotheses, experiments, and results we will be testing
+
+echo "create a new project for jimothy to hold the hypotheses, experiments, and results we will be testing"
 response=$(curl -s -X POST "$BASE_URL/projects/create/" \
     -H "x-api-key: $JIMAPI_KEY" \
     -d 'name=Jimothy Test Project newnewnnewewnewnew&description=Project for hypothesis/experiment/results testing'| jq -S .)
@@ -25,6 +26,8 @@ echo -e $response
 PROJECT_ID=$(echo $response | jq -r '.project_id')
 echo "Project ID for testing: $PROJECT_ID"
 echo -e "\n"
+
+
 
 
 # Create three hypotheses to use in the tests
@@ -56,6 +59,8 @@ curl -s -X PUT "$BASE_URL/hypotheses/$HID3/edit/" -H "x-api-key:$JIMAPI_KEY" -H 
 curl -s -X GET "$BASE_URL/hypotheses/$HID3/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
 echo -e "\n"
 
+
+
 # Hypotheses: list, search, filter
 
 echo "Search and filter tests:" 
@@ -75,6 +80,7 @@ curl -s -X DELETE "$BASE_URL/hypotheses/$HID2/delete/" -H "x-api-key:$JIMAPI_KEY
 #list hypotheses to verify HID2 was deleted
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/hypotheses/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
 echo -e "\n"
+
 
 
 # Experiments: create, detail, edit, delete
@@ -104,10 +110,11 @@ curl -s -X GET "$BASE_URL/experiments/$EXPERIMENT_ID1/" -H "x-api-key:$JIMAPI_KE
 
 curl -s -X PUT "$BASE_URL/experiments/$EXPERIMENT_ID1/edit/" -H "x-api-key:$JIMAPI_KEY" -H "Content-Type: application/x-www-form-urlencoded" -d 'title=Updated Experiment name&learning_rate=0.02'
 
-#delete EXPERIMENT_ID2 to test delete
+echo "delete EXPERIMENT_ID2 to test delete"
 curl -s -X DELETE "$BASE_URL/experiments/$EXPERIMENT_ID2/delete/" -H "x-api-key:$JIMAPI_KEY" | jq -S .
-#list experiments to verify EXPERIMENT_ID2 was deleted
+echo "list experiments to verify EXPERIMENT_ID2 was deleted"
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/experiments/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" |  jq -S .
+
 
 
 
@@ -130,8 +137,12 @@ curl -s -X GET "$BASE_URL/results/$RESULT_ID2/" -H "x-api-key:$JIMAPI_KEY" -H "A
 curl -s -X DELETE "$BASE_URL/results/$RESULT_ID2/delete/" -H "x-api-key:$JIMAPI_KEY" | jq -S .
 
 
+
 echo "Check the find all experiments with no results function"
 curl -s -X GET "$BASE_URL/experiments/no_results/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
+
+
+
 
 echo "Creating 2 more experiments for hypothesis ID $HID1"
 EID1=$(curl -s -X POST "$BASE_URL/hypotheses/$HID1/experiments/create/"\
@@ -177,17 +188,23 @@ curl -s -X POST "$BASE_URL/experiments/$EID2/results/create/"\
   -H "Content-Type: application/x-www-form-urlencoded"\
    -d 'accuracy=0.80&loss=0.20&ROC=0.80&PR_AUC=0.80&weights_path=s3://path/to/weights.pth&training_time=3800&comment=Best results!'\
     
+echo -e "\n"
 
 echo "Find the results with training time under 4000 seconds"
-curl -s -X GET "$BASE_URL/results/training_time_under/4000" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
+curl -s -X GET "$BASE_URL/results/training_time_under/4000/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
+
+
+
 
 echo "Find the top 2 results for hypothesis ID $HID1 with highest accuracy"
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/hypotheses/$HID1/best_result/?top_n=2" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
 
 
+
 echo "list results for project ID $PROJECT_ID"
 # Results: list
 curl -s -X GET "$BASE_URL/projects/$PROJECT_ID/results/" -H "x-api-key:$JIMAPI_KEY" -H "Accept: application/json" | jq -S .
+
 
 
 echo "Deleting experiment ID $EXPERIMENT_ID3 to test delete"

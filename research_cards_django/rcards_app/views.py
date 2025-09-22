@@ -181,8 +181,8 @@ def project_edit(request, project_id):
     if not project:
         return Response("Project not found", status=404)
 
-    project.name = request.PUT.get('name', project.name)
-    project.description = request.PUT.get('description', project.description)
+    project.name = request.POST.get('name', project.name)
+    project.description = request.POST.get('description', project.description)
     project.save()
 
     return Response({"message": "Project Edited", "project_id": project.id})
@@ -318,9 +318,9 @@ def hypothesis_edit(request, hypothesis_id):
     if project.owner != user and user not in project.associated_users.all():
         return Response("Forbidden", status=403)
 
-    hypothesis.title = request.PUT.get('title', hypothesis.title)
-    hypothesis.commit = request.PUT.get('commit', hypothesis.commit)
-    hypothesis.description = request.PUT.get('description', hypothesis.description)
+    hypothesis.title = request.POST.get('title', hypothesis.title)
+    hypothesis.commit = request.POST.get('commit', hypothesis.commit)
+    hypothesis.description = request.POST.get('description', hypothesis.description)
     hypothesis.save()
 
     return Response({"message": f"Hypothesis Edited", "hypothesis_id": hypothesis.id})
@@ -396,11 +396,11 @@ def experiment_edit(request, experiment_id):
     if project.owner != user and user not in project.associated_users.all():
         return Response("Forbidden", status=403)
 
-    experiment.description = request.PUT.get('description', experiment.description)
-    experiment.experiment_type = request.PUT.get('experiment_type', experiment.experiment_type)
-    experiment.learning_rate = request.PUT.get('learning_rate', experiment.learning_rate)
-    experiment.batch_size = request.PUT.get('batch_size', experiment.batch_size)
-    experiment.epochs = request.PUT.get('epochs', experiment.epochs)
+    experiment.description = request.POST.get('description', experiment.description)
+    experiment.experiment_type = request.POST.get('experiment_type', experiment.experiment_type)
+    experiment.learning_rate = request.POST.get('learning_rate', experiment.learning_rate)
+    experiment.batch_size = request.POST.get('batch_size', experiment.batch_size)
+    experiment.epochs = request.POST.get('epochs', experiment.epochs)
     experiment.save()
 
     return Response({"message": f"Experiment Edited", "experiment_id": experiment.id})
@@ -485,13 +485,13 @@ def result_edit(request, result_id):
     if project.owner != user and user not in project.associated_users.all():
         return Response("Forbidden", status=403)
 
-    result.accuracy = request.PUT.get('accuracy', result.accuracy)
-    result.loss = request.PUT.get('loss', result.loss)
-    result.ROC = request.PUT.get('ROC', result.ROC)
-    result.PR_AUC = request.PUT.get('PR_AUC', result.PR_AUC)
-    result.weights_path = request.PUT.get('weights_path', result.weights_path)
-    result.training_time = request.PUT.get('training_time', result.training_time)
-    result.comment = request.PUT.get('comment', result.comment)
+    result.accuracy = request.POST.get('accuracy', result.accuracy)
+    result.loss = request.POST.get('loss', result.loss)
+    result.ROC = request.POST.get('ROC', result.ROC)
+    result.PR_AUC = request.POST.get('PR_AUC', result.PR_AUC)
+    result.weights_path = request.POST.get('weights_path', result.weights_path)
+    result.training_time = request.POST.get('training_time', result.training_time)
+    result.comment = request.POST.get('comment', result.comment)
     result.save()
 
     return Response({"message": f"Result Edited", "result_id": result.id})

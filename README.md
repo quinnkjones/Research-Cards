@@ -15,11 +15,21 @@ Users are created, deleted, and viewed by requests that are authenticated by a s
 ## Getting Started
 
 Assuming you have a working installation of docker installed 
-
+Build the API
 ```
 git clone git@github.com:quinnkjones/Research-Cards.git
 cd Research-Cards
 sudo docker build -t research-cards . #builds the api image 
+```
+
+```
+#fill up the db 
+sudo docker compose up -d db
+sudo docker exec -i research-cards-db-1 /bin/bash -c "PGPASSWORD=example psql --username user cards_db" < ./dump.sql
+sudo docker compose down
+```
+Get started!
+```
 sudo docker compose up 
 #brings online the postgres @localhost:5432 ,the api @localhost:8000, 
 #and a DB admin website for inspecting the db purposes if we get curious @ localhost:8080

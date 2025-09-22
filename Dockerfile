@@ -15,7 +15,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY ./research_cards_django/ .
+
+RUN ls -la
 
 # Expose port (as per compose file)
 EXPOSE 8000

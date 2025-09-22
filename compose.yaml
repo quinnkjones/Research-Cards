@@ -40,14 +40,14 @@ services:
   # the main web service running django via gunicorn accessible on localhost:8000 once up
   web:
     image: research-cards
-    command: gunicorn  --chdir /app/research_cards_django my_app:application --bind 0.0.0.0:8000
+    command: gunicorn   my_app:application --bind 0.0.0.0:8000
     restart: always
     depends_on:
       - db
     ports:
       - "8000:8000"
     volumes:
-      - ./:/app
+      - ./research_cards_django:/app
 
 
     

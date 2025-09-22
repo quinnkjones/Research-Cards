@@ -7,18 +7,26 @@ services:
     restart: always
     # set shared memory limit when using docker compose
     shm_size: 128mb
-    # or set shared memory limit when deploy via swarm stack
-    #volumes:
-    #  - type: tmpfs
-    #    target: /dev/shm
-    #    tmpfs:
-    #      size: 134217728 # 128*2^20 bytes = 128Mb
+
+    #set a simple user password and database name for testing
     environment:
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: example
       POSTGRES_DB: cards_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-      
+
+  #a simple db admin tool for testing and debugging
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  
+
   # nginx:
   #   image: nginx:latest
   #   ports:
@@ -29,17 +37,13 @@ services:
   #   depends_on:
   #     - web
 
-  
+  # the main web service running django via gunicorn accessible on localhost:8000 once up
   web:
-    build: .
-    environment:
-      - PROD=1
+    image: research-cards
     command: gunicorn  --chdir /app/research_cards_django my_app:application --bind 0.0.0.0:8000
     restart: always
     depends_on:
       - db
-    expose:
-      - "8000"
     ports:
       - "8000:8000"
     volumes:
